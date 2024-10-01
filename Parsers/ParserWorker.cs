@@ -1,17 +1,18 @@
 ﻿using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Options;
 using Parser._ASP.Net.Models.Purchases;
+using Parser._ASP.Net.Interfaces;
 using Parser._ASP.Net.Parsers.Purchases;
 
 namespace Parser._ASP.Net.Controllers.Parsers
 {
-    public class ParserWorker
+    public class ParserWorker 
     {
-        public PurchaseParser _parser;
+        public IParser _parser;
         private HtmlLoader _htmlLoader;
         private PurchaseSettings _purchaseSettings;
 
-        public ParserWorker(IOptions<PurchaseSettings> purchaseOption, PurchaseParser parser, HtmlLoader htmlLoader)
+        public ParserWorker(IOptions<PurchaseSettings> purchaseOption, IParser parser, HtmlLoader htmlLoader)
         {
             _purchaseSettings = purchaseOption.Value;
             _htmlLoader = htmlLoader;
@@ -24,7 +25,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
 
             for (int pageNum = _purchaseSettings.FirstPageNum; pageNum <= _purchaseSettings.LastPageNum; pageNum++)
             {
-                var source = await _htmlLoader.GetPageAsync(pageNum);
+                var source = await _htmlLoader.GetPageAsync(pageNum, _purchaseSettings.PurchaseName, _purchaseSettings.BaseUrl);
 
                 if (string.IsNullOrEmpty(source))
                     continue;

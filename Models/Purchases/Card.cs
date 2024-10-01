@@ -1,4 +1,6 @@
-﻿namespace Parser._ASP.Net.Models.Purchases
+﻿using Parser._ASP.Net.Interfaces;
+
+namespace Parser._ASP.Net.Models.Purchases
 {
     public class Card
     {

@@ -2,6 +2,8 @@
 using Parser._ASP.Net.Controllers.Parsers;
 using Parser._ASP.Net.Models.Purchases;
 using Microsoft.Extensions.Options;
+using Parser._ASP.Net.Interfaces;
+using Parser._ASP.Net.Parsers.Purchases;
 
 namespace Parser._ASP.Net.Controllers
 {

@@ -1,7 +1,8 @@
-﻿
-namespace Parser._ASP.Net.Models.Purchases
+﻿using Parser._ASP.Net.Interfaces;
+
+namespace Parser._ASP.Net.Parsers.Purchases
 {
-    public class PurchaseSettings 
+    public class PurchaseSettings
     {
         public const string PurchaseSection = "PurchaseSettings";
 

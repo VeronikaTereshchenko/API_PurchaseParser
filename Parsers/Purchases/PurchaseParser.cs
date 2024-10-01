@@ -1,10 +1,11 @@
 ﻿using AngleSharp.Html.Dom;
 using Parser._ASP.Net.Models.Purchases;
+using Parser._ASP.Net.Interfaces;
 
 
 namespace Parser._ASP.Net.Parsers.Purchases
 {
-    public class PurchaseParser
+    public class PurchaseParser : IParser
     {
         public List<Card> Parse(IHtmlDocument document)
         {

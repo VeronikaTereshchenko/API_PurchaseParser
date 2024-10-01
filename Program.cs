@@ -1,6 +1,7 @@
 using Parser._ASP.Net.Controllers.Parsers;
-using Parser._ASP.Net.Models.Purchases;
 using Parser._ASP.Net.Parsers.Purchases;
+using Parser._ASP.Net.Interfaces;
+using Microsoft.Extensions.Options;
 
 internal class Program
 {
@@ -11,9 +12,9 @@ internal class Program
 
         builder.Services.Configure<PurchaseSettings>(
             builder.Configuration.GetSection(PurchaseSettings.PurchaseSection));
-        builder.Services.AddScoped<PurchaseParser>();
+        builder.Services.AddScoped<IParser, PurchaseParser>();
         builder.Services.AddScoped<ParserWorker>();
-        builder.Services.AddSingleton<HtmlLoader>();
+        builder.Services.AddScoped<HtmlLoader>();
         builder.Services.AddHttpClient();
 
         var app = builder.Build();
