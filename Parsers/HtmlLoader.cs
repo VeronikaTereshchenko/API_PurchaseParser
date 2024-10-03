@@ -5,7 +5,7 @@ using Parser._ASP.Net.Models.Purchases;
 
 namespace Parser._ASP.Net.Controllers.Parsers
 {
-    public class HtmlLoader
+    public class HtmlLoader : ILoader
     {
         private HttpClient _httpClient; 
 
@@ -18,8 +18,6 @@ namespace Parser._ASP.Net.Controllers.Parsers
 
         public async Task<string> GetPageAsync(int num, string phrase, string url)
         {
-            //кодируем слово, по которому идёт выборка закупок
-            //encode the name by which the purchases are selected
             var encodeName = HttpUtility.UrlEncode(phrase);
 
             //вставляем в строку запроса актуальные данные о: наименорвании закупки и номера страницы
@@ -29,7 +27,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
             var response = await _httpClient.GetAsync(currentUrl);
 
             //the error about not accessing the page is caught in the PurchaseController.cs
-            if(response != null && response.StatusCode == HttpStatusCode.OK) 
+            if(response is {StatusCode: HttpStatusCode.OK }) 
             {
                 return await response.Content.ReadAsStringAsync();
             }
