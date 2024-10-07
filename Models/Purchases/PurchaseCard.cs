@@ -2,7 +2,7 @@
 
 namespace Parser._ASP.Net.Models.Purchases
 {
-    public class Card
+    public class PurchaseCard
     {
         public string Law { get; set; }
         public string Number { get; set; }

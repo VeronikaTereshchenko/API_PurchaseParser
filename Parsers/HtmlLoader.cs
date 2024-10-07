@@ -1,11 +1,10 @@
 ﻿using System.Net;
 using System.Web;
 using Parser._ASP.Net.Interfaces;
-using Parser._ASP.Net.Models.Purchases;
 
 namespace Parser._ASP.Net.Controllers.Parsers
 {
-    public class HtmlLoader : ILoader
+    public class HtmlLoader : IPageLoader
     {
         private HttpClient _httpClient; 
 

@@ -9,18 +9,18 @@ namespace Parser._ASP.Net.Controllers
     [ApiController]
     public class PurchaseController : ControllerBase
     {
-        private ICustomParser _parser;
+        private IWebParser _parser;
 
-        public PurchaseController(ICustomParser parserWorker) 
+        public PurchaseController(IWebParser parser) 
         {
-            _parser = parserWorker;
+            _parser = parser;
         }
 
         [Route("api/zakupki/purchases")]
         [HttpPost]
         public async Task<IActionResult> ParsePurchases() 
         {
-            var parsedPurchasesList = await _parser.GetProductsAsync();
+            var parsedPurchasesList = await _parser.GetPageInfoAsync();
 
             return Ok(parsedPurchasesList);
         }

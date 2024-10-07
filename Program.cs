@@ -11,8 +11,8 @@ internal class Program
 
         builder.Services.Configure<PurchaseSettings>(
             builder.Configuration.GetSection(PurchaseSettings.PurchaseSection));
-        builder.Services.AddScoped<ICustomParser, PurchaseParser>();
-        builder.Services.AddScoped<ILoader, HtmlLoader>();
+        builder.Services.AddScoped<IWebParser, PurchaseParser>();
+        builder.Services.AddScoped<IPageLoader, HtmlLoader>();
         builder.Services.AddHttpClient();
 
         var app = builder.Build();

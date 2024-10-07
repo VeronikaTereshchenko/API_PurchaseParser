@@ -6,20 +6,20 @@ using AngleSharp.Html.Parser;
 
 namespace Parser._ASP.Net.Parsers.Purchases
 {
-    public class PurchaseParser : ICustomParser
+    public class PurchaseParser : IWebParser
     {
-        private ILoader _htmlLoader;
+        private IPageLoader _htmlLoader;
         private PurchaseSettings _purchaseSettings;
 
-        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, ILoader htmlLoader)
+        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader)
         {
             _purchaseSettings = purchaseOption.Value;
             _htmlLoader = htmlLoader;
         }
 
-        public async Task<FoundPurchases> GetProductsAsync()
+        public async Task<PurchaseParsingResult> GetPageInfoAsync()
         {
-            var parsedInfo = new List<Card>();
+            var parsedInfo = new List<PurchaseCard>();
 
             for (int pageNum = _purchaseSettings.FirstPageNum; pageNum <= _purchaseSettings.LastPageNum; pageNum++)
             {
@@ -41,7 +41,7 @@ namespace Parser._ASP.Net.Parsers.Purchases
                 parsedInfo.AddRange(result);
             }
 
-            var foundPurchases = new FoundPurchases()
+            var foundPurchases = new PurchaseParsingResult()
             {
                 PurchaseName = _purchaseSettings.PurchaseName,
                 PagesPeriod = $"search through pages {_purchaseSettings.FirstPageNum} to {_purchaseSettings.LastPageNum}",
@@ -52,13 +52,13 @@ namespace Parser._ASP.Net.Parsers.Purchases
             return foundPurchases;
         }
 
-        public List<Card> Parse(IHtmlDocument document)
+        private List<PurchaseCard> Parse(IHtmlDocument document)
         {
             //ищем карточки (карточка хранит инф. об одном объекте, имя объекта задаётся в app_PurchaseSettings.json)
             //search for a card
             var purchaseCardsHtml = document.QuerySelectorAll("div.row.no-gutters.registry-entry__form.mr-0");
 
-            var cards = new List<Card>();
+            var cards = new List<PurchaseCard>();
 
             if (purchaseCardsHtml == null)
             {
@@ -67,7 +67,7 @@ namespace Parser._ASP.Net.Parsers.Purchases
 
             foreach (var purchaseCardHtml in purchaseCardsHtml)
             {
-                var card = new Card()
+                var card = new PurchaseCard()
                 {
                     Law = purchaseCardHtml.GetTextContent( "div.col-9.p-0.registry-entry__header-top__title.text-truncate"),
                     Number = purchaseCardHtml.GetTextContent("div.registry-entry__header-mid__number a"),
