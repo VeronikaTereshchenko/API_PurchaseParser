@@ -1,16 +1,25 @@
 ﻿using System.Net;
 using System.Web;
 using Parser._ASP.Net.Interfaces;
+using Serilog;
+using Serilog.Sinks;
 
 namespace Parser._ASP.Net.Controllers.Parsers
 {
     public class HtmlLoader : IPageLoader
     {
         private HttpClient _httpClient; 
+        private Serilog.Core.Logger _logger;
 
         public HtmlLoader(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
+
+            _logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            _logger.ForContext<HtmlLoader>();
+
             //without that header doesn't work
             _httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
         }
@@ -31,7 +40,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
                 return await response.Content.ReadAsStringAsync();
             }
 
-            Console.WriteLine($"link couuldn't be accessed: {url}");
+            _logger.Error("link couldn't be accessed: {0}. StatCode {1}", currentUrl, response.StatusCode.ToString());
             return string.Empty;
         }
     }
