@@ -1,24 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Parser._ASP.Net.Models.Purchases;
-using Microsoft.Extensions.Options;
 using Parser._ASP.Net.Interfaces;
-using Parser._ASP.Net.Parsers.Purchases;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Parser._ASP.Net.Controllers
 {
     [ApiController]
-    public class PurchaseController : ControllerBase
+    [EnableRateLimiting("purchaseLimiter")]
+    public class PurchasesController : ControllerBase
     {
         private IWebParser _parser;
 
-        public PurchaseController(IWebParser parser) 
+        public PurchasesController(IWebParser parser) 
         {
             _parser = parser;
         }
 
-        [Route("api/zakupki/purchases")]
-        [HttpPost]
-        public async Task<IActionResult> ParsePurchases() 
+        [Route("api/[controller]/[action]")]
+        [EnableRateLimiting("concurrencyLimiter")]
+        [HttpGet]
+        public async Task<IActionResult> GetPurchases() 
         {
             var parsedPurchasesList = await _parser.GetPageInfoAsync();
 
