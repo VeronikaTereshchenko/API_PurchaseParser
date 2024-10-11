@@ -15,7 +15,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
 
         public HtmlLoader(IHttpClientFactory httpClientFactory, ILogger<HtmlLoader> logger)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient("PoliceClient");
 
             _logger = logger;
 

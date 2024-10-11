@@ -5,6 +5,10 @@ using Serilog;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using System.Globalization;
+using Polly;
+using Parser._ASP.Net.Parsers;
+using Microsoft.Extensions.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 internal class Program
 {
@@ -65,9 +69,14 @@ internal class Program
 
         builder.Services.AddScoped<IWebParser, PurchaseParser>();
         builder.Services.AddScoped<IPageLoader, HtmlLoader>();
-        
-        builder.Services.AddHttpClient();
-        
+
+        builder.Services.AddHttpClient("PoliceClient", client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(60);
+        })
+            .AddPolicyHandler(PolicyRegistry.GetRateLimitPolicy());
+
+
         builder.Services.AddMemoryCache();
 
         var app = builder.Build();
