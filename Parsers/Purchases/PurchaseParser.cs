@@ -3,7 +3,6 @@ using Parser._ASP.Net.Models.Purchases;
 using Parser._ASP.Net.Interfaces;
 using Microsoft.Extensions.Options;
 using AngleSharp.Html.Parser;
-using Microsoft.Extensions.Caching.Memory;
 using AngleSharp.Dom;
 using System;
 using System.Web;
@@ -15,13 +14,11 @@ namespace Parser._ASP.Net.Parsers.Purchases
     {
         private IPageLoader _htmlLoader;
         private PurchaseSettings _purchaseSettings;
-        private IMemoryCache _cache;
 
-        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader, IMemoryCache cache)
+        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader)
         {
             _purchaseSettings = purchaseOption.Value;
             _htmlLoader = htmlLoader;
-            _cache = cache;
         }
 
         public async Task<PurchaseParsingResult> GetPageInfoAsync()
@@ -31,13 +28,6 @@ namespace Parser._ASP.Net.Parsers.Purchases
             for (int pageNum = _purchaseSettings.FirstPageNum; pageNum <= _purchaseSettings.LastPageNum; pageNum++)
             {
                 var currentUrl = GetUrl(pageNum);
-
-                if(_cache.TryGetValue(currentUrl, out List<PurchaseCard> purchaseList))
-                {
-                    parsedInfo.AddRange(purchaseList);
-
-                    continue;
-                }
 
                 var source = await _htmlLoader.GetPageAsync(currentUrl);
 
@@ -55,11 +45,6 @@ namespace Parser._ASP.Net.Parsers.Purchases
                 var result = Parse(document);
 
                 parsedInfo.AddRange(result);
-
-                var cashEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-
-                _cache.Set(currentUrl, result, cashEntryOptions);
             }
 
             var foundPurchases = new PurchaseParsingResult()
