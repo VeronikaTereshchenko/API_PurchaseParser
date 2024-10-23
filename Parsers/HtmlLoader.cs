@@ -17,7 +17,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
             _httpClient = httpClientFactory.CreateClient();
 
             //without that header doesn't work
-            //_httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
         }
 
         public async Task<string> GetPageAsync(string currentUrl)
@@ -30,8 +30,9 @@ namespace Parser._ASP.Net.Controllers.Parsers
                 return await response.Content.ReadAsStringAsync();
             }
 
-            var errorInfo = "Link couldn't be accessed: {0}. StatCode {1}".Replace("{0}", currentUrl).Replace("{1}", response.StatusCode.ToString());
-            Log.Warning(errorInfo);
+            Log.Warning("Link couldn't be accessed: {0}. StatCode {1}"
+                            .Replace("{0}", currentUrl)
+                            .Replace("{1}", response.StatusCode.ToString()));
 
             return string.Empty;
         }
