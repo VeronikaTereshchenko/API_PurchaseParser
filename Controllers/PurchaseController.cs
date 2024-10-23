@@ -3,6 +3,9 @@ using Parser._ASP.Net.Models.Purchases;
 using Microsoft.Extensions.Options;
 using Parser._ASP.Net.Interfaces;
 using Parser._ASP.Net.Parsers.Purchases;
+using Microsoft.Extensions.Caching.Memory;
+using System.Xml.Linq;
+using Microsoft.Extensions.Caching;
 
 namespace Parser._ASP.Net.Controllers
 {

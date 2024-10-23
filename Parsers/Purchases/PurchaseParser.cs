@@ -3,6 +3,10 @@ using Parser._ASP.Net.Models.Purchases;
 using Parser._ASP.Net.Interfaces;
 using Microsoft.Extensions.Options;
 using AngleSharp.Html.Parser;
+using AngleSharp.Dom;
+using System;
+using System.Web;
+using Serilog.Data;
 
 namespace Parser._ASP.Net.Parsers.Purchases
 {
@@ -23,7 +27,9 @@ namespace Parser._ASP.Net.Parsers.Purchases
 
             for (int pageNum = _purchaseSettings.FirstPageNum; pageNum <= _purchaseSettings.LastPageNum; pageNum++)
             {
-                var source = await _htmlLoader.GetPageAsync(pageNum, _purchaseSettings.PurchaseName, _purchaseSettings.BaseUrl);
+                var currentUrl = GetUrl(pageNum);
+
+                var source = await _htmlLoader.GetPageAsync(currentUrl);
 
                 if (string.IsNullOrEmpty(source))
                     continue;
@@ -80,6 +86,16 @@ namespace Parser._ASP.Net.Parsers.Purchases
             }
 
             return cards;
+        }
+
+        private string GetUrl(int pageNum)
+        {
+            var encodeName = HttpUtility.UrlEncode(_purchaseSettings.PurchaseName);
+
+            //вставляем в строку запроса актуальные данные о: наименорвании закупки и номера страницы
+            //insert the actual data about: purchase name and page number into the query string 
+
+            return _purchaseSettings.BaseUrl.Replace("{PHRASE}", encodeName).Replace("{NUMBER}", pageNum.ToString());
         }
     }
 

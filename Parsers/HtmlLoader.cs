@@ -1,37 +1,39 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Web;
+using Microsoft.Extensions.Caching.Memory;
 using Parser._ASP.Net.Interfaces;
+using Serilog;
+using Serilog.Sinks;
 
 namespace Parser._ASP.Net.Controllers.Parsers
 {
     public class HtmlLoader : IPageLoader
     {
-        private HttpClient _httpClient; 
+        private HttpClient _httpClient;
 
         public HtmlLoader(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
+
             //without that header doesn't work
             _httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
         }
 
-        public async Task<string> GetPageAsync(int num, string phrase, string url)
+        public async Task<string> GetPageAsync(string currentUrl)
         {
-            var encodeName = HttpUtility.UrlEncode(phrase);
-
-            //вставляем в строку запроса актуальные данные о: наименорвании закупки и номера страницы
-            //insert the actual data about: purchase name and page number into the query string 
-            var currentUrl = url.Replace("{PHRASE}", encodeName).Replace("{NUMBER}", num.ToString());
-
             var response = await _httpClient.GetAsync(currentUrl);
 
             //the error about not accessing the page is caught in the PurchaseController.cs
-            if(response is {StatusCode: HttpStatusCode.OK }) 
+            if (response is {StatusCode: HttpStatusCode.OK }) 
             {
                 return await response.Content.ReadAsStringAsync();
             }
 
-            Console.WriteLine($"link couuldn't be accessed: {url}");
+            Log.Warning("Link couldn't be accessed: {0}. StatCode {1}"
+                            .Replace("{0}", currentUrl)
+                            .Replace("{1}", response.StatusCode.ToString()));
+
             return string.Empty;
         }
     }
