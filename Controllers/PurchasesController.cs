@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Parser._ASP.Net.Interfaces;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace Parser._ASP.Net.Controllers
 {
     [ApiController]
-    [EnableRateLimiting("purchaseLimiter")]
     public class PurchasesController : ControllerBase
     {
         private IWebParser _parser;
@@ -15,8 +13,7 @@ namespace Parser._ASP.Net.Controllers
             _parser = parser;
         }
 
-        [Route("api/[controller]/[action]")]
-        [EnableRateLimiting("concurrencyLimiter")]
+        [Route("api/zakupki/purchases")]
         [HttpGet]
         public async Task<IActionResult> GetPurchases() 
         {

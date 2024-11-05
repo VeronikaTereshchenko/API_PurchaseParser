@@ -11,13 +11,10 @@ namespace Parser._ASP.Net.Controllers.Parsers
     public class HtmlLoader : IPageLoader
     {
         private HttpClient _httpClient;
-        private ILogger<HtmlLoader> _logger;
 
-        public HtmlLoader(IHttpClientFactory httpClientFactory, ILogger<HtmlLoader> logger)
+        public HtmlLoader(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("PoliceClient");
-
-            _logger = logger;
 
             //without that header doesn't work
             _httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
@@ -33,10 +30,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
                 return await response.Content.ReadAsStringAsync();
             }
 
-            //logging
-            var errorInfo = "Link couldn't be accessed: {0}. StatCode {1}".Replace("{0}", currentUrl).Replace("{1}", response.StatusCode.ToString());
-            _logger.LogDebug(errorInfo);
-            Console.WriteLine(errorInfo);
+            Log.Warning("Link couldn't be accessed: {0}. StatCode {1}".Replace("{0}", currentUrl).Replace("{1}", response.StatusCode.ToString()));
             
             return string.Empty;
         }
