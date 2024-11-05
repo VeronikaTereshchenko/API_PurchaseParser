@@ -1,5 +1,4 @@
 ﻿using AngleSharp.Html.Dom;
-using Parser._ASP.Net.Models.Purchases;
 using Parser._ASP.Net.Interfaces;
 using Microsoft.Extensions.Options;
 using AngleSharp.Html.Parser;
@@ -8,6 +7,9 @@ using AngleSharp.Dom;
 using System;
 using System.Web;
 using Serilog.Data;
+using Parser._ASP.Net.Data.Entities.Purchases;
+using Parser._ASP.Net.Data.DataContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace Parser._ASP.Net.Parsers.Purchases
 {
@@ -15,14 +17,16 @@ namespace Parser._ASP.Net.Parsers.Purchases
     {
         private IPageLoader _htmlLoader;
         private PurchaseSettings _purchaseSettings;
+        private PurchaseContext _purchaseContext;
 
-        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader)
+        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader, PurchaseContext purchaseContext)
         {
             _purchaseSettings = purchaseOption.Value;
             _htmlLoader = htmlLoader;
+            _purchaseContext = purchaseContext;
         }
 
-        public async Task<PurchaseParsingResult> GetPageInfoAsync()
+        public async Task<PurchaseParsingResult> GetPagesInfoAsync()
         {
             var parsedInfo = new List<PurchaseCard>();
 
@@ -53,8 +57,10 @@ namespace Parser._ASP.Net.Parsers.Purchases
                 PurchaseName = _purchaseSettings.PurchaseName,
                 PagesPeriod = $"search through pages {_purchaseSettings.FirstPageNum} to {_purchaseSettings.LastPageNum}",
                 PurchasesListCount = parsedInfo.Count,
-                PurchasesList = parsedInfo
+                PurchasesCardsList = parsedInfo
             };
+
+            AddToDb(foundPurchases);
 
             return foundPurchases;
         }
@@ -97,6 +103,12 @@ namespace Parser._ASP.Net.Parsers.Purchases
             //insert the actual data about: purchase name and page number into the query string 
 
             return _purchaseSettings.BaseUrl.Replace("{PHRASE}", encodeName).Replace("{NUMBER}", pageNum.ToString());
+        }
+
+        private void AddToDb(PurchaseParsingResult purchases)
+        {
+            _purchaseContext.PurchaseParsingResults.Add(purchases);
+            _purchaseContext.SaveChanges();
         }
     }
 

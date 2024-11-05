@@ -6,6 +6,8 @@ using System.Globalization;
 using Parser._ASP.Net.Parsers;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Parser._ASP.Net.Data.DataContext;
+using Microsoft.EntityFrameworkCore;
 
 internal class Program
 {
@@ -14,11 +16,17 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
 
+        builder.Services.AddDbContext<PurchaseContext>(options =>
+        {
+            options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConnection"));
+        }
+        );
+
         builder.Services.Configure<PurchaseSettings>(
             builder.Configuration.GetSection(PurchaseSettings.PurchaseSection) ??
-            throw new InvalidOperationException("Connection string 'PurchaseSettings' not found."));
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
 
-        builder.Services.AddSerilog((ls) => ls
+        builder.Services.AddSerilog(ls => ls
             .ReadFrom.Configuration(builder.Configuration));
 
         builder.Services.AddScoped<IWebParser, PurchaseParser>();

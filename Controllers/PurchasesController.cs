@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Parser._ASP.Net.Data.DataContext;
+using Parser._ASP.Net.Data.Entities.Purchases;
 using Parser._ASP.Net.Interfaces;
 
 namespace Parser._ASP.Net.Controllers
@@ -17,7 +20,7 @@ namespace Parser._ASP.Net.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPurchases() 
         {
-            var parsedPurchasesList = await _parser.GetPageInfoAsync();
+            var parsedPurchasesList = await _parser.GetPagesInfoAsync();
 
             return Ok(parsedPurchasesList);
         }
