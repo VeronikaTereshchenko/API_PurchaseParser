@@ -1,7 +1,9 @@
-﻿namespace Parser._ASP.Net.Interfaces
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace PurchaseSiteParser.Interfaces
 {
     public interface IPageLoader
     {
-        public Task<string> GetPageAsync(int num, string phrase, string url);
+        public Task<string> GetPageAsync(string url);
     }
 }

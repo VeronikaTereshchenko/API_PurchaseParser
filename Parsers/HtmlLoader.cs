@@ -1,37 +1,38 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Web;
-using Parser._ASP.Net.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
+using PurchaseSiteParser.Interfaces;
+using Serilog;
+using Serilog.Sinks;
 
-namespace Parser._ASP.Net.Controllers.Parsers
+namespace PurchaseSiteParser.Controllers.Parsers
 {
     public class HtmlLoader : IPageLoader
     {
-        private HttpClient _httpClient; 
+        private HttpClient _httpClient;
+        private Serilog.ILogger _logger;
 
-        public HtmlLoader(IHttpClientFactory httpClientFactory)
+        public HtmlLoader(IHttpClientFactory httpClientFactory, Serilog.ILogger logger)
         {
             _httpClient = httpClientFactory.CreateClient();
-            //without that header doesn't work
             _httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+
+            _logger = logger;
         }
 
-        public async Task<string> GetPageAsync(int num, string phrase, string url)
+        public async Task<string> GetPageAsync(string currentUrl)
         {
-            var encodeName = HttpUtility.UrlEncode(phrase);
-
-            //вставляем в строку запроса актуальные данные о: наименорвании закупки и номера страницы
-            //insert the actual data about: purchase name and page number into the query string 
-            var currentUrl = url.Replace("{PHRASE}", encodeName).Replace("{NUMBER}", num.ToString());
-
             var response = await _httpClient.GetAsync(currentUrl);
 
             //the error about not accessing the page is caught in the PurchaseController.cs
-            if(response is {StatusCode: HttpStatusCode.OK }) 
+            if (response is {StatusCode: HttpStatusCode.OK }) 
             {
                 return await response.Content.ReadAsStringAsync();
             }
 
-            Console.WriteLine($"link couuldn't be accessed: {url}");
+            _logger.Warning($"Link couldn't be accessed: {currentUrl}. StatCode {response.StatusCode.ToString()}");
+            
             return string.Empty;
         }
     }

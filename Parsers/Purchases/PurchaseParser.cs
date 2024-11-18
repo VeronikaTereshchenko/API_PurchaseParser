@@ -1,29 +1,42 @@
 ﻿using AngleSharp.Html.Dom;
-using Parser._ASP.Net.Models.Purchases;
-using Parser._ASP.Net.Interfaces;
+using PurchaseSiteParser.Interfaces;
 using Microsoft.Extensions.Options;
 using AngleSharp.Html.Parser;
+using Microsoft.Extensions.Caching.Memory;
+using AngleSharp.Dom;
+using System;
+using System.Web;
+using Serilog.Data;
+using PurchaseSiteParser.Entities.Purchases;
+using PurchaseSiteParser.DataContext;
+using Microsoft.EntityFrameworkCore;
+using PurchaseSiteParser.Repositories;
+using PurchaseSiteParser.Parsers;
 
-namespace Parser._ASP.Net.Parsers.Purchases
+namespace PurchaseSiteParser.Purchases
 {
-    public class PurchaseParser : IWebParser
+    public class PurchaseParser : ISiteParser
     {
-        private IPageLoader _htmlLoader;
-        private PurchaseSettings _purchaseSettings;
+        private readonly IPageLoader _htmlLoader;
+        private readonly PurchaseSettings _purchaseSettings;
+        private readonly IRepository<PurchaseParsingResult> _db;
 
-        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader)
+        public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader, PurchaseContext purchaseContext)
         {
             _purchaseSettings = purchaseOption.Value;
             _htmlLoader = htmlLoader;
+            _db = new PurchaseRepository(purchaseContext);
         }
 
-        public async Task<PurchaseParsingResult> GetPageInfoAsync()
+        public async Task<PurchaseParsingResult> GetPagesInfoAsync()
         {
             var parsedInfo = new List<PurchaseCard>();
 
             for (int pageNum = _purchaseSettings.FirstPageNum; pageNum <= _purchaseSettings.LastPageNum; pageNum++)
             {
-                var source = await _htmlLoader.GetPageAsync(pageNum, _purchaseSettings.PurchaseName, _purchaseSettings.BaseUrl);
+                var currentUrl = GetUrl(pageNum);
+
+                var source = await _htmlLoader.GetPageAsync(currentUrl);
 
                 if (string.IsNullOrEmpty(source))
                     continue;
@@ -46,8 +59,11 @@ namespace Parser._ASP.Net.Parsers.Purchases
                 PurchaseName = _purchaseSettings.PurchaseName,
                 PagesPeriod = $"search through pages {_purchaseSettings.FirstPageNum} to {_purchaseSettings.LastPageNum}",
                 PurchasesListCount = parsedInfo.Count,
-                PurchasesList = parsedInfo
+                PurchasesCardsList = parsedInfo
             };
+
+            _db.Add(foundPurchases);
+            _db.Save();
 
             return foundPurchases;
         }
@@ -80,6 +96,16 @@ namespace Parser._ASP.Net.Parsers.Purchases
             }
 
             return cards;
+        }
+
+        private string GetUrl(int pageNum)
+        {
+            var encodeName = HttpUtility.UrlEncode(_purchaseSettings.PurchaseName);
+
+            //вставляем в строку запроса актуальные данные о: наименорвании закупки и номера страницы
+            //insert the actual data about: purchase name and page number into the query string 
+
+            return _purchaseSettings.BaseUrl.Replace("{PHRASE}", encodeName).Replace("{NUMBER}", pageNum.ToString());
         }
     }
 

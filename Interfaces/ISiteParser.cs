@@ -1,10 +1,10 @@
 ﻿using AngleSharp.Html.Dom;
 using Microsoft.Extensions.Caching.Memory;
-using Parser._ASP.Net.Data.Entities.Purchases;
+using PurchaseSiteParser.Entities.Purchases;
 
-namespace Parser._ASP.Net.Interfaces
+namespace PurchaseSiteParser.Interfaces
 {
-    public interface IWebParser
+    public interface ISiteParser
     {
         Task<PurchaseParsingResult> GetPagesInfoAsync();
     }

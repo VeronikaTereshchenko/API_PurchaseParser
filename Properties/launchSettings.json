@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Parser._ASP.Net": {
+    "PurchaseSiteParser": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
