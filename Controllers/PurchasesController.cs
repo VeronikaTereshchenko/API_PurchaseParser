@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Parser._ASP.Net.Data.DataContext;
-using Parser._ASP.Net.Data.Entities.Purchases;
-using Parser._ASP.Net.Interfaces;
+using PurchaseSiteParser.DataContext;
+using PurchaseSiteParser.Entities.Purchases;
+using PurchaseSiteParser.Interfaces;
 
-namespace Parser._ASP.Net.Controllers
+namespace PurchaseSiteParser.Controllers
 {
     [ApiController]
     public class PurchasesController : ControllerBase
     {
-        private IWebParser _parser;
+        private ISiteParser _parser;
 
-        public PurchasesController(IWebParser parser) 
+        public PurchasesController(ISiteParser parser) 
         {
             _parser = parser;
         }

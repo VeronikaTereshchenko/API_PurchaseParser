@@ -2,22 +2,23 @@
 using System.Net;
 using System.Web;
 using Microsoft.Extensions.Caching.Memory;
-using Parser._ASP.Net.Interfaces;
+using PurchaseSiteParser.Interfaces;
 using Serilog;
 using Serilog.Sinks;
 
-namespace Parser._ASP.Net.Controllers.Parsers
+namespace PurchaseSiteParser.Controllers.Parsers
 {
     public class HtmlLoader : IPageLoader
     {
         private HttpClient _httpClient;
+        private Serilog.ILogger _logger;
 
-        public HtmlLoader(IHttpClientFactory httpClientFactory)
+        public HtmlLoader(IHttpClientFactory httpClientFactory, Serilog.ILogger logger)
         {
-            _httpClient = httpClientFactory.CreateClient("PoliceClient");
-
-            //without that header doesn't work
+            _httpClient = httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+
+            _logger = logger;
         }
 
         public async Task<string> GetPageAsync(string currentUrl)
@@ -30,7 +31,7 @@ namespace Parser._ASP.Net.Controllers.Parsers
                 return await response.Content.ReadAsStringAsync();
             }
 
-            Log.Warning("Link couldn't be accessed: {0}. StatCode {1}".Replace("{0}", currentUrl).Replace("{1}", response.StatusCode.ToString()));
+            _logger.Warning($"Link couldn't be accessed: {currentUrl}. StatCode {response.StatusCode.ToString()}");
             
             return string.Empty;
         }

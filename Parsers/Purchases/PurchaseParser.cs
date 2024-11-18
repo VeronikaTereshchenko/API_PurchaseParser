@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Html.Dom;
-using Parser._ASP.Net.Interfaces;
+using PurchaseSiteParser.Interfaces;
 using Microsoft.Extensions.Options;
 using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Caching.Memory;
@@ -7,23 +7,25 @@ using AngleSharp.Dom;
 using System;
 using System.Web;
 using Serilog.Data;
-using Parser._ASP.Net.Data.Entities.Purchases;
-using Parser._ASP.Net.Data.DataContext;
+using PurchaseSiteParser.Entities.Purchases;
+using PurchaseSiteParser.DataContext;
 using Microsoft.EntityFrameworkCore;
+using PurchaseSiteParser.Repositories;
+using PurchaseSiteParser.Parsers;
 
-namespace Parser._ASP.Net.Parsers.Purchases
+namespace PurchaseSiteParser.Purchases
 {
-    public class PurchaseParser : IWebParser
+    public class PurchaseParser : ISiteParser
     {
-        private IPageLoader _htmlLoader;
-        private PurchaseSettings _purchaseSettings;
-        private PurchaseContext _purchaseContext;
+        private readonly IPageLoader _htmlLoader;
+        private readonly PurchaseSettings _purchaseSettings;
+        private readonly IRepository<PurchaseParsingResult> _db;
 
         public PurchaseParser(IOptions<PurchaseSettings> purchaseOption, IPageLoader htmlLoader, PurchaseContext purchaseContext)
         {
             _purchaseSettings = purchaseOption.Value;
             _htmlLoader = htmlLoader;
-            _purchaseContext = purchaseContext;
+            _db = new PurchaseRepository(purchaseContext);
         }
 
         public async Task<PurchaseParsingResult> GetPagesInfoAsync()
@@ -60,7 +62,8 @@ namespace Parser._ASP.Net.Parsers.Purchases
                 PurchasesCardsList = parsedInfo
             };
 
-            AddToDb(foundPurchases);
+            _db.Add(foundPurchases);
+            _db.Save();
 
             return foundPurchases;
         }
@@ -103,12 +106,6 @@ namespace Parser._ASP.Net.Parsers.Purchases
             //insert the actual data about: purchase name and page number into the query string 
 
             return _purchaseSettings.BaseUrl.Replace("{PHRASE}", encodeName).Replace("{NUMBER}", pageNum.ToString());
-        }
-
-        private void AddToDb(PurchaseParsingResult purchases)
-        {
-            _purchaseContext.PurchaseParsingResults.Add(purchases);
-            _purchaseContext.SaveChanges();
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Dom;
 using System.Text.RegularExpressions;
 
-namespace Parser._ASP.Net.Parsers
+namespace PurchaseSiteParser.Parsers
 {
     public static class IElementExtentions
     {
@@ -24,7 +24,11 @@ namespace Parser._ASP.Net.Parsers
 
         public static decimal GetDecimalNum(this IElement element, string valuseStr)
         {
-            var resultString = string.Join(string.Empty, Regex.Matches(valuseStr, @"\d+\,?").OfType<Match>().Select(m => m.Value));
+            var numHtml = element.QuerySelector(valuseStr);
+
+            var numStr = numHtml.TextContent;
+
+            var resultString = string.Join(string.Empty, Regex.Matches(numStr, @"\d+\,?").OfType<Match>().Select(m => m.Value));
 
             if (decimal.TryParse(resultString, out var decimalNum))
                 return decimalNum;

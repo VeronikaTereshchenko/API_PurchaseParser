@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace Parser._ASP.Net.Interfaces
+namespace PurchaseSiteParser.Interfaces
 {
     public interface IPageLoader
     {

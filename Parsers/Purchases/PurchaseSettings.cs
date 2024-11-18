@@ -1,6 +1,6 @@
-﻿using Parser._ASP.Net.Interfaces;
+﻿using PurchaseSiteParser.Interfaces;
 
-namespace Parser._ASP.Net.Parsers.Purchases
+namespace PurchaseSiteParser.Purchases
 {
     public class PurchaseSettings
     {
